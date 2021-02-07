@@ -42,10 +42,10 @@ This deploys a new API stage and creates a bucket for the new website (Web URL r
 
 1. StageName. This is the name of the deployment for API GW, e.g dev
 2. SourceBucket. The source of the files we prepared, e.g tmp-source-assets
-3. APIID. The existing ID for the API GW, e.g t1abq2acpd
+3. APIID. The existing ID for the API GW, e.g u0q9mvv7wd
 
 ```sh
-aws cloudformation deploy --stack-name CRDeployStack --template-file ./CRTemplate.yaml --capabilities CAPABILITY_IAM --parameter-overrides StageName=dev SourceBucket=tmp-store-assets APIID=1539pj949l
+aws cloudformation deploy --stack-name CRDeployStack --template-file ./CRTemplate.yaml --capabilities CAPABILITY_IAM --parameter-overrides StageName=dev SourceBucket=tmp-store-assets APIID=u0q9mvv7wd
 ```
 
 Get output as below:
@@ -54,17 +54,17 @@ Get output as below:
 aws cloudformation describe-stacks --stack-name CRDeployStack | grep OutputValue
 ```
 
-Cleanup, delete the Stacks as below:
-
-```sh
-aws cloudformation delete-stack --stack-name APIWeather
-aws cloudformation delete-stack --stack-name CRDeployStack
-```
-
 If you have purely web (SPA) code changes and want to trigger an Update.
 Re-run the updateSpa command and then re-run the deploy with a different BuildId paramater.
 
 ```sh
 npm run updateSpa --bucket=tmp-store-assets
-aws cloudformation deploy --stack-name CRDeployStack --template-file ./CRTemplate.yaml --capabilities CAPABILITY_IAM --parameter-overrides StageName=v2 SourceBucket=tmp-store-assets APIID=1539pj949l BuildId=2
+aws cloudformation deploy --stack-name CRDeployStack --template-file ./CRTemplate.yaml --capabilities CAPABILITY_IAM --parameter-overrides StageName=dev SourceBucket=tmp-store-assets APIID=u0q9mvv7wd BuildId=2
+```
+
+Cleanup, delete the Stacks as below:
+
+```sh
+aws cloudformation delete-stack --stack-name CRDeployStack
+aws cloudformation delete-stack --stack-name APIWeather
 ```
