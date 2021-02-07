@@ -1,0 +1,5 @@
+node_modules
+spa-code/node_modules
+lambda-code/node_modules
+lambda-code/node_modules/*
+lambda-archive.zip

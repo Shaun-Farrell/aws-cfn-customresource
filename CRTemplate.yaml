@@ -1,0 +1,115 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Depy API and Website Example
+Parameters:
+  StageName:
+    Default: dev
+    Description: Name for the stage e.g "dev" or "prod" (lowercase)
+    Type: String
+    MinLength: "1"
+    MaxLength: "12"
+    AllowedPattern: "[a-z0-9]*"
+    ConstraintDescription: Must contain only alphanumeric characters (length between 1-12).
+  SourceBucket:
+    Default: tmp-store-assets
+    Description: Location of source bucket holding assets e.g "tmp-source-assets"
+    Type: String
+    MinLength: "1"
+    MaxLength: "100"
+    ConstraintDescription: Length between 1-100.
+  APIID:
+    Default: t1abq2acpd
+    Description: APIGateway ID e.g "t1abq2acpd"
+    Type: String
+    MinLength: "10"
+    MaxLength: "10"
+    AllowedPattern: "[a-zA-Z0-9]*"
+    ConstraintDescription: Must contain only alphanumeric characters (length 10).
+  BuildId:
+    Default: 1
+    Description: Random Identifier for a build to trigger updates
+    Type: String
+    MinLength: "1"
+    MaxLength: "10"
+    AllowedPattern: "[a-zA-Z0-9]*"
+    ConstraintDescription: Must contain only alphanumeric characters (length 1-10).
+Metadata:
+  "AWS::CloudFormation::Interface":
+    ParameterGroups:
+      - Label:
+          default: Metadata for use in deployment
+        Parameters:
+          - StageName
+          - SourceBucket
+Resources:
+  LambdaExecutionRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - "sts:AssumeRole"
+      Policies:
+        - PolicyName: lambdalogtocloudwatch
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - "logs:CreateLogGroup"
+                  - "logs:CreateLogStream"
+                  - "logs:PutLogEvents"
+                Resource: "arn:aws:logs:*:*:*"
+        - PolicyName: apigatewayadmin
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - "apigateway:*"
+                Resource: !Sub "arn:aws:apigateway:${AWS::Region}::/restapis/${APIID}/*"
+        - PolicyName: s3admin
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - "s3:*"
+                Resource:
+                  - !Sub "arn:aws:s3:::${SourceBucket}"
+                  - !Sub "arn:aws:s3:::${SourceBucket}/*"
+                  - !Sub "arn:aws:s3:::spa-project-${StageName}"
+                  - !Sub "arn:aws:s3:::spa-project-${StageName}/*"
+  DeployFunction:
+    Type: "AWS::Lambda::Function"
+    Properties:
+      Code:
+        S3Bucket: tmp-store-assets
+        S3Key: lambda-archive
+      Handler: lambda_callout.handler
+      Runtime: nodejs12.x
+      MemorySize: 256
+      Timeout: 120
+      Role: !GetAtt
+        - LambdaExecutionRole
+        - Arn
+  DeployAPIAndSPA:
+    Type: "Custom::LambdaCallout"
+    Properties:
+      ServiceToken: !GetAtt
+        - DeployFunction
+        - Arn
+      StageName: !Ref StageName
+      SourceBucket: !Ref SourceBucket
+      APIID: !Ref APIID
+      BuildId: !Ref BuildId
+Outputs:
+  Results:
+    Description: Resulting web URL from deploying SPA
+    Value: !GetAtt
+      - DeployAPIAndSPA
+      - output

@@ -1,0 +1,19 @@
+{
+  "name": "cfn-customresource",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "installAll": "cd lambda-code && npm i && cd ../spa-code && npm i && cd ..",
+    "buildLambda": "cd lambda-code && npm run build && cd ..",
+    "zipLambda": "zip -r -j lambda-archive.zip lambda-code/dist/*",
+    "cpLambda": "aws s3 cp lambda-archive.zip s3://$npm_config_bucket/lambda-archive",
+    "updateLambda": "npm run buildLambda && npm run zipLambda && npm run cpLambda \"--bucket=$npm_config_bucket\"",
+    "buildSpa": "cd spa-code && npm run build && cd ..",
+    "cpSpa": "aws s3 cp --recursive spa-code/build s3://$npm_config_bucket/base",
+    "updateSpa": "npm run buildSpa && npm run cpSpa \"--bucket=$npm_config_bucket\""
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
