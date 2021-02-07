@@ -28,7 +28,7 @@ Build and copy the spa-code to S3 bucket:
 npm run updateSpa --bucket=tmp-store-assets
 ```
 
-Setup the API Gateway API with the first command and get the API ID with the second:
+Setup the API Gateway Weather API with the first command and get the API ID with the second:
 
 ```sh
 aws cloudformation deploy --stack-name APIWeather --template-file ./api-setup/APITemplate.yaml --capabilities CAPABILITY_IAM
