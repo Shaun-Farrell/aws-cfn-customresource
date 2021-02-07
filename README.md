@@ -1,4 +1,4 @@
-# Example using AWS CFN CustomResource to deploy API / Web (SPA)
+# AWS CFN CustomResource to deploy API / Web (SPA)
 
 ## Preparation for Custom Resource Script
 
